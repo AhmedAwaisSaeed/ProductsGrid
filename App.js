@@ -23,6 +23,7 @@ class App extends Component {
       allProducts: [],
       page: 1,
       isloading: false,
+      isMainLaoding: false,
       dataFecthed: false,
       currentDate: undefined,
       currentMonth: undefined,
@@ -35,7 +36,7 @@ class App extends Component {
   componentDidMount() {
     console.log('in did mount......');
 
-    this.setState({isloading: true}, this.get_data_from_api);
+    this.setState({isloading: true,isMainLaoding:true}, this.get_data_from_api);
   }
 
   get_data_from_api = () => {
@@ -51,9 +52,6 @@ class App extends Component {
       currentyear: year,
     });
 
-    console.log('In get data');
-
-    //  fetch(base_url+'products', {
     if (!this.state.sorting) {
       fetch(base_url + 'products?_page=' + this.state.page + '&_limit=15', {
         method: 'GET',
@@ -70,6 +68,7 @@ class App extends Component {
               allProducts: this.state.allProducts.concat(responseJson),
               dataFecthed: true,
               isloading: false,
+              isMainLaoding:false
             });
 
             this.checking_date();
@@ -114,6 +113,7 @@ class App extends Component {
               allProducts: this.state.allProducts.concat(responseJson),
               dataFecthed: true,
               isloading: false,
+              isMainLaoding:false
             });
 
             this.checking_date();
@@ -247,7 +247,7 @@ class App extends Component {
   render() {
     return (
       <>
-        <StatusBar backgroundColor="orange" barStyle="dark-content" />
+        <StatusBar backgroundColor="#061993" barStyle="dark-content" />
         <SafeAreaView style={{flex: 1}}>
           <View style={styles.topBarView}>
             <MyTopBar
@@ -258,6 +258,13 @@ class App extends Component {
           <View style={styles.topBarLine}></View>
 
           <View style={styles.body}>
+            {this.state.isMainLaoding ? (
+              <View style={styles.loadingOne}>
+                <ActivityIndicator
+                  size="large"
+                  color="#FFFF"></ActivityIndicator>
+              </View>
+            ) : null}
             <View style={styles.pcikerContainer}>
               <PickerSelect
                 callback={this.picker_selected_value}></PickerSelect>
@@ -272,19 +279,54 @@ class App extends Component {
                   renderItem={({item, index}) => (
                     <View style={styles.rowDataContainer}>
                       <TouchableOpacity style={styles.cardView}>
-                        <View style={styles.contentView}>
-                          <Text style={{fontSize: item.size}}>{item.face}</Text>
-                        </View>
-                        <View style={styles.DescriptionView}>
-                          <Text style={{textAlign: 'center', color: '#FFFF'}}>
-                            ${item.price / 100}
-                          </Text>
-                        </View>
+                        <View
+                          style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <View style={styles.contentView}>
+                            <Text style={{fontSize: item.size, color: '#FFFF'}}>
+                              {item.face}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginTop: '2%',
+                            }}>
+                            <View>
+                              <Text style={styles.boldText}>Price:</Text>
+                            </View>
+                            <View style={styles.DescriptionView}>
+                              <Text
+                                style={{textAlign: 'center', color: '#FFFF'}}>
+                                ${item.price / 100}
+                              </Text>
+                            </View>
+                          </View>
 
-                        <View style={styles.DescriptionView}>
-                          <Text style={{textAlign: 'center', color: '#FFFF'}}>
-                            {item.date}
-                          </Text>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}>
+                            <View>
+                              <Text style={styles.boldText}>Size:</Text>
+                            </View>
+                            <View style={styles.DescriptionView}>
+                              <Text
+                                style={{textAlign: 'center', color: '#FFFF'}}>
+                                {item.size}
+                              </Text>
+                            </View>
+                          </View>
+
+                          <View style={styles.DescriptionView}>
+                            <Text style={{textAlign: 'center', color: '#FFFF'}}>
+                              {item.date}
+                            </Text>
+                          </View>
                         </View>
                       </TouchableOpacity>
                     </View>
@@ -309,10 +351,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   topBarLine: {
-    // flex:1,
     borderWidth: 0.5,
     borderColor: '#AAB0BC',
-    // marginTop:10
   },
   body: {
     height: '95%',
@@ -321,59 +361,47 @@ const styles = StyleSheet.create({
   cardView: {
     shadowColor: '#3E5884',
     shadowOffset: {width: 1, height: 1},
-    // height ho ge to top or bottom me bhi ho ga. Width right or left
+
     shadowOpacity: 0.8,
-    //  kitni opacity rakhni ha
+
     elevation: 1,
     shadowRadius: 2,
 
-    // borderWidth:1,
     flex: 1,
-    height: 300,
-    // width:"100%",
-    margin: 20,
-    // backgroundColor:"#3E5884",
+
+    margin: '5%',
+    padding: '5%',
+
     backgroundColor: '#061993',
     borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   rowDataContainer: {
     flex: 1,
-    // height:200,
+
     flexDirection: 'row',
     backgroundColor: '#135CC5',
 
     justifyContent: 'space-between',
-    //  margin:10
   },
 
-  contentView: {
-    backgroundColor: '#FFFF',
-    // flex:1,
-    //  width:"70%%",
-    //  height:"70%",
-    //  borderWidth:1,
-    // borderRadius:hp('35%'),
-    //  flex:0.5,
-    // width:50,
-    // height:50,
-    // borderRadius:50,
-    // flex:0.5,
-    // height:"100%",
-    // width:"100%",
-    // justifyContent:"center",
-    // alignItems:"center"
-  },
+  contentView: {},
   DescriptionView: {
-    //  flex:0.5,
     margin: 5,
-    // alignItems:"center",
-    // justifyContent:"center"
   },
   loading: {
     marginTop: 10,
     alignItems: 'center',
+  },
+  loadingOne: {
+    // flex:1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   pcikerContainer: {
     height: '10%',
@@ -381,9 +409,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: '5%',
     paddingRight: '5%',
-    //  marginLeft:"5%",
-    //  marginRight:"5%"
-    // alignItems:"center"
+  },
+  boldText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFF',
+  },
+  normalText: {
+    fontSize: 14,
+    fontWeight: '300',
   },
 });
 
